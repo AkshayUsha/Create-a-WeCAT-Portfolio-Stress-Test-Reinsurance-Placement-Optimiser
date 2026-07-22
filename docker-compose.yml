@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: insurexthon-sql
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "YourStrong@Password123"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sqlserver-data:/var/opt/mssql/data
+      - ./database-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Password123" -Q "SELECT 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - insurexthon-net
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: insurexthon-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - insurexthon-net
+
+  # Azure Storage Emulator (Azurite)
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: insurexthon-azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite-data:/data
+    networks:
+      - insurexthon-net
+
+  # .NET Backend API
+  api:
+    build:
+      context: ./src/API
+      dockerfile: Dockerfile
+    container_name: insurexthon-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Initial Catalog=InsureXThonDb;User Id=sa;Password=YourStrong@Password123;Encrypt=false;TrustServerCertificate=true;"
+      AzureStorage__ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUP1uS0NWNw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;"
+      Redis__Connection: "redis:6379"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      azurite:
+        condition: service_started
+    networks:
+      - insurexthon-net
+
+volumes:
+  sqlserver-data:
+  redis-data:
+  azurite-data:
+
+networks:
+  insurexthon-net:
+    driver: bridge

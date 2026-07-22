@@ -1,0 +1,61 @@
+# Build Results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+*.dll
+*.exe
+*.so
+*.dylib
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# Node/Angular
+node_modules/
+dist/
+.angular/
+*.npm
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+appsettings.Development.json
+environments/environment.ts
+
+# Azure
+.Azure/
+.azureignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Dependencies
+bin/
+obj/
+
+# Database
+*.mdf
+*.ldf
+*.sqlite
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+coverage/
+test-results/
