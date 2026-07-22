@@ -1,0 +1,1 @@
+{\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\",\n  \"contentVersion\": \"1.0.0.0\",\n  \"parameters\": {\n    \"appName\": {\n      \"value\": \"insurexthon\"\n    },\n    \"location\": {\n      \"value\": \"eastus\"\n    },\n    \"environment\": {\n      \"value\": \"prod\"\n    }\n  }\n}\n"
